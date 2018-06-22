@@ -29,8 +29,9 @@ class ViewController: UIViewController {
 extension ViewController{
     
     func setupOnLoad(){
-        addSampleData()
-        getSampleData()
+        addSampleData() // This method simply inserts a data
+        getSampleData() // This will fetch as well as update the values in db
+//        deleteTheSampleData() // This will delete the whole data from database
     }
     
     func addSampleData(){
@@ -71,15 +72,46 @@ extension ViewController{
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
         
+        // Fetch request to get the records from database
+        
         let userFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
         let users = try! managedContext.fetch(userFetch) as? [User]
         
         for user in users!{
             print(user.name)
             print(user.car)
+            
+            // Update the record
+            
+            user.name = "Anil"
+            user.date = Date() as NSDate
         }
         
+        do {
+            try managedContext.save()
+        }
+        catch {
+            print("Saving Core Data Failed: \(error)")
+        }
     }
     
-    
+    func deleteTheSampleData(){
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let userFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+        let users = try! managedContext.fetch(userFetch) as? [User]
+        
+        for user in users!{
+            managedContext.delete(user)
+        }
+        
+        do {
+            try managedContext.save()
+        }
+        catch {
+            print("Saving Core Data Failed: \(error)")
+        }
+    }
 }
